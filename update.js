@@ -9,25 +9,26 @@ for (var i = 0; i < main.rows.length; i++) {
 	var row = main.rows[i];
 	if (i === 0) {
 		row.insertCell(0).innerHTML = "Last trade";
-		row.insertCell(0).innerHTML = "Symbol";
-		row.insertCell(0).innerHTML = "Exchange";
+//		row.insertCell(0).innerHTML = "Symbol";
+//		row.insertCell(0).innerHTML = "Exchange";
 		row.insertCell(0).innerHTML = "Current growth rate";
 		row.insertCell(0).innerHTML = "Original growth rate";
 	} else {
 
 		// Calculate everything we'll need
-		var exchange = getExchange(row);
-		var symbol = getSymbol(row, exchange);
+		//var exchange = getExchange(row);
+		//var symbol = getSymbol(row);
+		var company = getCompany(row);
 		var buyLimit = getPriceOnly(row.cells[0].innerText);
 		var originalPrice = getPriceOnly(row.cells[5].innerText);
-		var lastTrade = getLastTrade(symbol);
-		var originalGrowthRate = (buyLimit / originalPrice).toFixed(2);
-		var currentGrowthRate = (buyLimit / lastTrade).toFixed(2);
+		var lastTrade = getLastTrade(company);
+		var originalGrowthRate = (originalPrice) ? (buyLimit / originalPrice).toFixed(2) : "";
+		var currentGrowthRate = (lastTrade) ? (buyLimit / lastTrade).toFixed(2) : "";
 		
 		// Now update the row
 		row.insertCell(0).innerHTML = lastTrade;
-		row.insertCell(0).innerHTML = symbol;
-		row.insertCell(0).innerHTML = exchange;
+//		row.insertCell(0).innerHTML = symbol;
+//		row.insertCell(0).innerHTML = exchange;
 		row.insertCell(0).innerHTML = currentGrowthRate;
 		row.insertCell(0).innerHTML = originalGrowthRate;
 	}
@@ -36,9 +37,9 @@ for (var i = 0; i < main.rows.length; i++) {
 /**
  * Try and work out the stocks symbol from a given row and exchange
  */
-function getSymbol(row, exchange) {
-	var company = row.cells[1].innerText;
-	var query = company.substring(0, company.indexOf("("));
+function getSymbol(row) {
+	var exchange = getExchange(row);
+	var query = getCompany(row);
 	if (exchange && query) {
 		var symbol = getSymbolFromYahoo(query, exchange);
 		if (symbol) {
@@ -46,6 +47,14 @@ function getSymbol(row, exchange) {
 		}
 	}
 	return "";
+}
+
+/**
+ * Get the company name
+ */
+function getCompany(row) {
+	var company = row.cells[1].innerText;
+	return company.substring(0, company.indexOf("("));
 }
 
 /**
@@ -64,12 +73,27 @@ function getExchange(row) {
  */
 function getLastTrade(symbol) {
 	if (symbol) {
-		var resp = synchronousAjax("http://www.google.com/ig/api?stock=" + symbol);
+		var resp = synchronousAjax("http://www.google.co.uk/finance?q=" + symbol);
 		if (resp) {
-			var xml = new DOMParser().parseFromString(resp, "text/xml");
-			return xml.getElementsByTagName("last")[0].attributes.getNamedItem("data").nodeValue;
+			var start = resp.indexOf("id=market-data-div");
+			var end = start + 200;
+			resp = resp.substring(start, end);
+			
+			start = resp.indexOf("</span") - 10;
+			end = start + 10;
+			resp = resp.substring(start, end);
+			
+			start = resp.indexOf(">") + 1;
+			end = resp.length;
+			resp = resp.substring(start, end);
+			
+			console.log(symbol + ": " + resp);
+			
+			resp = resp.replace(",", "");
+			return resp;
 		}
 	}
+	return "";
 }
 
 /**
@@ -83,7 +107,7 @@ function getSymbolFromYahoo(query, exchange) {
     for (var i = 0; i < results.length; i++) {
     	var result = results[i];
     	if (result.exch === exchange) {
-    		return result.symbol;
+    		return result.symbol.substring(0, result.symbol.indexOf("."));
     	}
     }
 }
@@ -107,3 +131,4 @@ function getPriceOnly(text) {
 	}
 	return text.replace(/[^0-9.]/g, "");
 }
+
