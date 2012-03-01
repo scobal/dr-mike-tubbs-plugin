@@ -1,0 +1,12 @@
+{
+  "name": "Add real time prices and growth rate to dr mike tubbs portfolio",
+  "version": "1.0",
+  "background_page": "background.html",
+  "permissions": [
+    "tabs", "http://*/*"
+  ],
+  "browser_action": {
+    "name": "Add real time prices and growth rate to dr mike tubbs portfolio"
+  },
+  "content_security_policy": "default-src 'none'; script-src 'self'"
+}
