@@ -22,11 +22,11 @@ function addRealtimeData(row) {
 		var company = getCompany(row);
 		var buyLimit = getPriceOnly(row.cells[0].innerText);
 		var originalPrice = getPriceOnly(row.cells[5].innerText);
-		var currentGooglePrice = getLastTrade(company);
-		var priceRatio = (currentGooglePrice) ? (buyLimit / currentGooglePrice).toFixed(2) : "";
+		var lastTrade = getLastTrade(company);
+		var priceRatio = (lastTrade.price) ? (buyLimit / lastTrade.price).toFixed(2) : "";
 		
 		// Now update the row
-		row.insertCell(0).innerHTML = currentGooglePrice;
+		row.insertCell(0).innerHTML = lastTrade.price + " " + lastTrade.currency;
 		row.insertCell(0).innerHTML = priceRatio;
 	}
 }
@@ -57,22 +57,36 @@ function getLastTrade(symbol) {
 	if (symbol) {
 		var resp = synchronousAjax("http://www.google.co.uk/finance?q=" + symbol);
 		if (resp) {
+			
+			// Extract last trade
 			var start = resp.indexOf("id=market-data-div");
 			var end = start + 200;
-			resp = resp.substring(start, end);
-			
-			start = resp.indexOf("</span") - 10;
+			var lastTrade = resp.substring(start, end);
+			start = lastTrade.indexOf("</span") - 10;
 			end = start + 10;
-			resp = resp.substring(start, end);
+			lastTrade = lastTrade.substring(start, end);
+			start = lastTrade.indexOf(">") + 1;
+			end = lastTrade.length;
+			lastTrade = lastTrade.substring(start, end);
+			lastTrade = lastTrade.replace(",", "");
 			
-			start = resp.indexOf(">") + 1;
-			end = resp.length;
-			resp = resp.substring(start, end);
+			// Extract currency
+			start = resp.indexOf("Currency in ") + 12;
+			end = start + 10
+			var currency = resp.substring(start, end);
+			start = 0
+			end = 3;
+			currency = currency.substring(start, end);
+			if (currency === 'tml') {
+				currency = "";
+			}
 			
-			console.log(symbol + ": " + resp);
-			
-			resp = resp.replace(",", "");
-			return resp;
+			// Result time
+			var trade = new Object();
+			trade.price = lastTrade;
+			trade.currency = currency;
+			console.log(symbol + ": " + trade.price + " " + trade.currency);
+			return trade;
 		}
 	}
 	return "";
