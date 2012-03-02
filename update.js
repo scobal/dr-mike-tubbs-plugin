@@ -8,45 +8,21 @@ var closed = portfolio[2];
 for (var i = 0; i < main.rows.length; i++) {
 	var row = main.rows[i];
 	if (i === 0) {
-		row.insertCell(0).innerHTML = "Last trade";
-//		row.insertCell(0).innerHTML = "Symbol";
-//		row.insertCell(0).innerHTML = "Exchange";
-		row.insertCell(0).innerHTML = "Current growth rate";
-		row.insertCell(0).innerHTML = "Original growth rate";
+		row.insertCell(0).innerHTML = "Current Google price";
+		row.insertCell(0).innerHTML = "Current price ratio";
 	} else {
 
 		// Calculate everything we'll need
-		//var exchange = getExchange(row);
-		//var symbol = getSymbol(row);
 		var company = getCompany(row);
 		var buyLimit = getPriceOnly(row.cells[0].innerText);
 		var originalPrice = getPriceOnly(row.cells[5].innerText);
-		var lastTrade = getLastTrade(company);
-		var originalGrowthRate = (originalPrice) ? (buyLimit / originalPrice).toFixed(2) : "";
-		var currentGrowthRate = (lastTrade) ? (buyLimit / lastTrade).toFixed(2) : "";
+		var currentGooglePrice = getLastTrade(company);
+		var priceRatio = (currentGooglePrice) ? (buyLimit / currentGooglePrice).toFixed(2) : "";
 		
 		// Now update the row
-		row.insertCell(0).innerHTML = lastTrade;
-//		row.insertCell(0).innerHTML = symbol;
-//		row.insertCell(0).innerHTML = exchange;
-		row.insertCell(0).innerHTML = currentGrowthRate;
-		row.insertCell(0).innerHTML = originalGrowthRate;
+		row.insertCell(0).innerHTML = currentGooglePrice;
+		row.insertCell(0).innerHTML = priceRatio;
 	}
-}
-
-/**
- * Try and work out the stocks symbol from a given row and exchange
- */
-function getSymbol(row) {
-	var exchange = getExchange(row);
-	var query = getCompany(row);
-	if (exchange && query) {
-		var symbol = getSymbolFromYahoo(query, exchange);
-		if (symbol) {
-			return symbol;
-		}
-	}
-	return "";
 }
 
 /**
@@ -94,22 +70,6 @@ function getLastTrade(symbol) {
 		}
 	}
 	return "";
-}
-
-/**
- * Try and get the stocks symbol from yahoo! finance
- */
-function getSymbolFromYahoo(query, exchange) {
-	var resp = synchronousAjax("http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=" + query + "&callback=YAHOO.Finance.SymbolSuggest.ssCallback");
-	resp = resp.replace("YAHOO.Finance.SymbolSuggest.ssCallback(","");
-	resp = resp.substring(0, resp.length - 1);
-    var results = JSON.parse(resp).ResultSet.Result;
-    for (var i = 0; i < results.length; i++) {
-    	var result = results[i];
-    	if (result.exch === exchange) {
-    		return result.symbol.substring(0, result.symbol.indexOf("."));
-    	}
-    }
 }
 
 /**
