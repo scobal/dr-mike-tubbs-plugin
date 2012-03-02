@@ -6,7 +6,13 @@ var risky = portfolio[1];
 var closed = portfolio[2];
 
 for (var i = 0; i < main.rows.length; i++) {
-	var row = main.rows[i];
+	addRealtimeData(main.rows[i]);
+}
+for (var i = 0; i < risky.rows.length; i++) {
+	addRealtimeData(risky.rows[i]);
+}
+
+function addRealtimeData(row) {
 	if (i === 0) {
 		row.insertCell(0).innerHTML = "Current Google price";
 		row.insertCell(0).innerHTML = "Current price ratio";
