@@ -12,6 +12,9 @@ for (var i = 0; i < risky.rows.length; i++) {
 	addRealtimeData(risky.rows[i]);
 }
 
+// Add sortable headers
+main.className += "sortable";
+
 function addRealtimeData(row) {
 	if (i === 0) {
 		row.insertCell(0).innerHTML = "Current Google price";
