@@ -6,14 +6,31 @@ var risky = portfolio[1];
 var closed = portfolio[2];
 
 for (var i = 0; i < main.rows.length; i++) {
+	colourize(main.rows[i]);
 	addRealtimeData(main.rows[i]);
 }
 for (var i = 0; i < risky.rows.length; i++) {
+	colourize(risky.rows[i]);
 	addRealtimeData(risky.rows[i]);
 }
 
 // Add sortable headers
 main.className += "sortable";
+
+function colourize(row) {
+	if (i !== 0) {
+		var decision = row.cells[0].innerText;
+		if (decision.lastIndexOf("BUY", 0) === 0) {
+			row.style.backgroundColor = "#EAFFEF";
+		}
+		if (decision.lastIndexOf("HOLD", 0) === 0) {
+			row.style.backgroundColor = "#ECF4FF";
+		}
+		if (decision.lastIndexOf("SELL", 0) === 0) {
+			row.style.backgroundColor = "#FFECF5";
+		}
+	}
+}
 
 function addRealtimeData(row) {
 	if (i === 0) {
