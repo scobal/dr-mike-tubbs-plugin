@@ -59,7 +59,7 @@ sorttable = {
 		      if (mtch && typeof sorttable["sort_"+override] == 'function') {
 		        headrow[i].sorttable_sortfunction = sorttable["sort_"+override];
 		      } else {
-		        headrow[i].sorttable_sortfunction = sorttable.sort_numeric; //sorttable.guessType(table,i);
+		        headrow[i].sorttable_sortfunction = sorttable.guessType(table,i);
 		      }
 		      // make it clickable to sort
 		      headrow[i].sorttable_columnindex = i;
@@ -138,6 +138,19 @@ sorttable = {
 	    }
 	  },
 	  
+	  guessType: function(table, column) {
+	    // guess the type of a column based on its first non-blank row
+	    for (var x=0; x<table.rows.length; x++) {
+	      var textie = sorttable.getInnerText(table.rows[x].cells[column]);
+	      if (textie !== "") {
+	        if (textie.match(/[-+]?[0-9]*\.?[0-9]+/)) {
+	          return sorttable.sort_numeric;
+	        }
+	      }
+	    }
+	    return sorttable.sort_alpha;
+	  },
+	  
 	  getInnerText: function(node) {
 	    // gets the text we want to use for sorting for a cell.
 	    // strips leading and trailing whitespace.
@@ -210,9 +223,10 @@ sorttable = {
 	  
 };
 
-/**
+/*****************************************************
  * This is where the app starts. Above here be sorting
- */
+ *****************************************************/
+
 
 // Split the page into the parts we need
 var portfolio = document.getElementById("newsletterbooklet-view").getElementsByTagName("table");
@@ -220,66 +234,76 @@ var main = portfolio[0];
 var risky = portfolio[1];
 var closed = portfolio[2];
 
-// Add data to the tables
-//for (var i = 0; i < main.rows.length; i++) {
-//	colourize(main.rows[i]);
-//	addRealtimeData(main.rows[i]);
-//}
-//for (var i = 0; i < risky.rows.length; i++) {
-//	colourize(risky.rows[i]);
-//	addRealtimeData(risky.rows[i]);
-//}
+// Update each table with extra data
+updateTable(main);
+updateTable(risky);
 
 // Lets sort!
-makeSortable(main);
-makeSortable(risky);
+main.className += "sortable";
+risky.className += "sortable";
 sorttable.init();
 
-/**
+
+/*********************************************************
  * This is where the app finishes. Below here be functions
+ *********************************************************/
+
+/**
+ * Update a table with latest pricing info
  */
-
-function makeSortable(table) {
-	table.className += "sortable";
-	var thead = table.createTHead();
-	var row = thead.insertRow(0);
-	for (var i = 0; i < table.rows[1].cells.length; i++) {
-	    row.insertCell(i).innerHTML = "sort";
+function updateTable(table) {
+	for (var i = 0; i < table.rows.length; i++) {
+		(i === 0) ? updateHeaderRow(table.rows[i]) : updateDataRow(table.rows[i]);
 	}
 }
 
+/**
+ * Prettify and add real time data to a data row
+ */
+function updateDataRow(row) {
+	colourize(row);
+	addRealtimeData(row);
+}
+
+/**
+ * Add extra column headers
+ */
+function updateHeaderRow(row){
+	row.insertCell(0).innerHTML = "Current Google price";
+	row.insertCell(0).innerHTML = "Current price ratio";
+}
+
+/**
+ * Make a table row look nice depending on it's recommendation
+ */
 function colourize(row) {
-	if (i !== 0) {
-		var decision = row.cells[0].innerText;
-		if (decision.lastIndexOf("BUY", 0) === 0) {
-			row.style.backgroundColor = "#EAFFEF";
-		}
-		if (decision.lastIndexOf("HOLD", 0) === 0) {
-			row.style.backgroundColor = "#ECF4FF";
-		}
-		if (decision.lastIndexOf("SELL", 0) === 0) {
-			row.style.backgroundColor = "#FFECF5";
-		}
+	var decision = row.cells[0].innerText;
+	if (decision.lastIndexOf("BUY", 0) === 0) {
+		row.style.backgroundColor = "#EAFFEF";
+	}
+	if (decision.lastIndexOf("HOLD", 0) === 0) {
+		row.style.backgroundColor = "#ECF4FF";
+	}
+	if (decision.lastIndexOf("SELL", 0) === 0) {
+		row.style.backgroundColor = "#FFECF5";
 	}
 }
 
+/**
+ * Get uddated prices from Google
+ */
 function addRealtimeData(row) {
-	if (i === 0) {
-		row.insertCell(0).innerHTML = "Current Google price";
-		row.insertCell(0).innerHTML = "Current price ratio";
-	} else {
 
-		// Calculate everything we'll need
-		var company = getCompany(row);
-		var buyLimit = getPriceOnly(row.cells[0].innerText);
-		var originalPrice = getPriceOnly(row.cells[5].innerText);
-		var lastTrade = getLastTrade(company);
-		var priceRatio = (lastTrade.price) ? (buyLimit / lastTrade.price).toFixed(2) : "";
-		
-		// Now update the row
-		row.insertCell(0).innerHTML = lastTrade.price + " " + lastTrade.currency;
-		row.insertCell(0).innerHTML = priceRatio;
-	}
+	// Calculate everything we'll need
+	var company = getCompany(row);
+	var buyLimit = getPriceOnly(row.cells[0].innerText);
+	var originalPrice = getPriceOnly(row.cells[5].innerText);
+	var lastTrade = getLastTrade(company);
+	var priceRatio = (lastTrade.price) ? (buyLimit / lastTrade.price).toFixed(2) : "";
+	
+	// Now update the row
+	row.insertCell(0).innerHTML = lastTrade.price + " " + lastTrade.currency;
+	row.insertCell(0).innerHTML = priceRatio;
 }
 
 /**
@@ -363,32 +387,32 @@ function getPriceOnly(text) {
 	return text.replace(/[^0-9.]/g, "");
 }
 
+/**
+ * Useful method for iterating arrays
+ */
 function forEach(array, block, context) {
 	for (var i = 0; i < array.length; i++) {
 		block.call(context, array[i], i, array);
 	}
 }
 
+/**
+ * Used by sorttable...
+ */
 function dean_addEvent(element, type, handler) {
 	if (element.addEventListener) {
 		element.addEventListener(type, handler, false);
 	} else {
-		// assign each event handler a unique ID
 		if (!handler.$$guid) handler.$$guid = dean_addEvent.guid++;
-		// create a hash table of event types for the element
 		if (!element.events) element.events = {};
-		// create a hash table of event handlers for each element/event pair
 		var handlers = element.events[type];
 		if (!handlers) {
 			handlers = element.events[type] = {};
-			// store the existing event handler (if there is one)
 			if (element["on" + type]) {
 				handlers[0] = element["on" + type];
 			}
 		}
-		// store the event handler in the hash table
 		handlers[handler.$$guid] = handler;
-		// assign a global event handler to do all the work
 		element["on" + type] = handleEvent;
 	}
 }
