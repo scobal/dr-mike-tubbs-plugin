@@ -5,6 +5,7 @@ var main = portfolio[0];
 var risky = portfolio[1];
 var closed = portfolio[2];
 
+// Add data to the tables
 for (var i = 0; i < main.rows.length; i++) {
 	colourize(main.rows[i]);
 	addRealtimeData(main.rows[i]);
@@ -15,7 +16,18 @@ for (var i = 0; i < risky.rows.length; i++) {
 }
 
 // Add sortable headers
-main.className += "sortable";
+makeSortable(main);
+makeSortable(risky);
+//sorttable.init();
+
+function makeSortable(table) {
+	table.className += "sortable";
+	var thead = table.createTHead();
+	var row = thead.insertRow(0);
+	for (var i = 0; i < table.rows[1].cells.length; i++) {
+	    row.insertCell(i).innerHTML = "sort";
+	}
+}
 
 function colourize(row) {
 	if (i !== 0) {
