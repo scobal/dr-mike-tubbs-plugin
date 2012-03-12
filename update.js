@@ -158,6 +158,8 @@ sorttable = {
 	    // for example, you can override the cell text with a customkey attribute.
 	    // it also gets .value for <input> fields.
 	    
+		if (!node) return "";
+		
 	    hasInputs = (typeof node.getElementsByTagName == 'function') &&
 	                 node.getElementsByTagName('input').length;
 	    
@@ -238,11 +240,6 @@ var closed = portfolio[2];
 updateTable(main);
 updateTable(risky);
 
-// Lets sort!
-main.className += "sortable";
-risky.className += "sortable";
-sorttable.init();
-
 
 /*********************************************************
  * This is where the app finishes. Below here be functions
@@ -252,6 +249,7 @@ sorttable.init();
  * Update a table with latest pricing info
  */
 function updateTable(table) {
+	table.className += "sortable";
 	for (var i = 0; i < table.rows.length; i++) {
 		(i === 0) ? updateHeaderRow(table.rows[i]) : updateDataRow(table.rows[i]);
 	}
@@ -290,20 +288,61 @@ function colourize(row) {
 }
 
 /**
- * Get uddated prices from Google
+ * Get updated prices from Google
  */
 function addRealtimeData(row) {
 
-	// Calculate everything we'll need
+	// Some bits we'll need
 	var company = getCompany(row);
+	if (!company) return;
 	var buyLimit = getPriceOnly(row.cells[0].innerText);
 	var originalPrice = getPriceOnly(row.cells[5].innerText);
-	var lastTrade = getLastTrade(company);
-	var priceRatio = (lastTrade.price) ? (buyLimit / lastTrade.price).toFixed(2) : "";
 	
-	// Now update the row
-	row.insertCell(0).innerHTML = lastTrade.price + " " + lastTrade.currency;
-	row.insertCell(0).innerHTML = priceRatio;
+	// Now get the latest trade
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://www.google.co.uk/finance?q=" + company, true);
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState != 4) {
+			return;
+		}
+		var resp = xhr.responseText;
+		
+		// Extract last trade
+		var start = resp.indexOf("id=market-data-div");
+		var end = start + 200;
+		var lastTrade = resp.substring(start, end);
+		start = lastTrade.indexOf("</span") - 10;
+		end = start + 10;
+		lastTrade = lastTrade.substring(start, end);
+		start = lastTrade.indexOf(">") + 1;
+		end = lastTrade.length;
+		lastTrade = lastTrade.substring(start, end);
+		lastTrade = lastTrade.replace(",", "");
+		
+		// Extract currency
+		start = resp.indexOf("Currency in ") + 12;
+		end = start + 10
+		var currency = resp.substring(start, end);
+		start = 0
+		end = 3;
+		currency = currency.substring(start, end);
+		if (currency === 'tml') {
+			currency = "";
+		}
+		
+		// Result time
+		var trade = new Object();
+		trade.price = lastTrade;
+		trade.currency = currency;
+		var priceRatio = (trade.price) ? (buyLimit / trade.price).toFixed(2) : "";
+		
+		// Now update the row
+		row.insertCell(0).innerHTML = trade.price + " " + trade.currency;
+		row.insertCell(0).innerHTML = priceRatio;
+		sorttable.init();
+	}
+	
+	xhr.send(null);
 }
 
 /**
@@ -323,58 +362,6 @@ function getExchange(row) {
 	if (currency === "p") {
 		return "LSE";
 	}
-}
-
-/**
- * Get the last trade for a given stock
- */
-function getLastTrade(symbol) {
-	if (symbol) {
-		var resp = synchronousAjax("http://www.google.co.uk/finance?q=" + symbol);
-		if (resp) {
-			
-			// Extract last trade
-			var start = resp.indexOf("id=market-data-div");
-			var end = start + 200;
-			var lastTrade = resp.substring(start, end);
-			start = lastTrade.indexOf("</span") - 10;
-			end = start + 10;
-			lastTrade = lastTrade.substring(start, end);
-			start = lastTrade.indexOf(">") + 1;
-			end = lastTrade.length;
-			lastTrade = lastTrade.substring(start, end);
-			lastTrade = lastTrade.replace(",", "");
-			
-			// Extract currency
-			start = resp.indexOf("Currency in ") + 12;
-			end = start + 10
-			var currency = resp.substring(start, end);
-			start = 0
-			end = 3;
-			currency = currency.substring(start, end);
-			if (currency === 'tml') {
-				currency = "";
-			}
-			
-			// Result time
-			var trade = new Object();
-			trade.price = lastTrade;
-			trade.currency = currency;
-			console.log(symbol + ": " + trade.price + " " + trade.currency);
-			return trade;
-		}
-	}
-	return "";
-}
-
-/**
- * Send an an ajax request (synchronously)
- */
-function synchronousAjax(url) {
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", url, false);
-	xhr.send();
-	return xhr.responseText;
 }
 
 /**
