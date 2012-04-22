@@ -229,6 +229,23 @@ sorttable = {
  * This is where the app starts. Above here be sorting
  *****************************************************/
 
+var stocks = {
+	ASML : { symbol : "AMS:ASML" },
+	BIOTECH : { symbol : "LON:BIOG" },
+	COBHAM : { symbol : "LON:COB" },
+	DECHRA : { symbol : "LON:DPH" },
+	FENNER : { symbol : "LON:FENR" },
+	FIDESSA : { symbol : "LON:FDSA" },
+	JOHNSON : { symbol : "LON:JMAT" },
+	MEDTRONIC : { symbol : "NYSE:MDT" },
+	MORPHOSYS : { symbol : "ETR:MOR" },
+	NCC : { symbol : "LON:NCC" },
+	RENISHAW : { symbol : "LON:RSW" },
+	ROTORK : { symbol : "LON:ROR" },
+	SDL : { symbol : "LON:SDL" },
+	SYMRISE : { symbol : "FRA:SY1" },
+	TEVA : { symbol : "NASDAQ:TEVA" }
+};
 
 // Split the page into the parts we need
 var portfolio = document.getElementById("newsletterbooklet-view").getElementsByTagName("table");
@@ -237,8 +254,8 @@ var risky = portfolio[1];
 var closed = portfolio[2];
 
 // Update each table with extra data
-updateTable(main);
-updateTable(risky);
+updateTable(main, stocks);
+updateTable(risky, stocks);
 
 
 /*********************************************************
@@ -248,10 +265,10 @@ updateTable(risky);
 /**
  * Update a table with latest pricing info
  */
-function updateTable(table) {
+function updateTable(table, stocks) {
 	table.className += "sortable";
 	for (var i = 0; i < table.rows.length; i++) {
-		(i === 0) ? updateHeaderRow(table.rows[i]) : updateDataRow(table.rows[i]);
+		(i === 0) ? updateHeaderRow(table.rows[i]) : updateDataRow(table.rows[i], stocks);
 	}
 }
 
@@ -260,7 +277,7 @@ function updateTable(table) {
  */
 function updateDataRow(row) {
 	colourize(row);
-	addRealtimeData(row);
+	addRealtimeData(row, stocks);
 }
 
 /**
@@ -268,7 +285,7 @@ function updateDataRow(row) {
  */
 function updateHeaderRow(row){
 	row.insertCell(0).innerHTML = "Current Google price";
-	row.insertCell(0).innerHTML = "Current price ratio";
+	row.insertCell(0).innerHTML = "Limit/Current price ratio";
 }
 
 /**
@@ -290,11 +307,19 @@ function colourize(row) {
 /**
  * Get updated prices from Google
  */
-function addRealtimeData(row) {
-
+function addRealtimeData(row, stocks) {
+	
 	// Some bits we'll need
-	var company = getCompany(row);
-	if (!company) return;
+	var company = getSymbol(row, stocks);
+	
+	// If we don't get a valid symbol then just enter blanks
+	if (!company) {
+		row.insertCell(0).innerHTML = "";
+		row.insertCell(0).innerHTML = "";
+		sorttable.init();
+		return;
+	}
+	
 	var buyLimit = getPriceOnly(row.cells[0].innerText);
 	var originalPrice = getPriceOnly(row.cells[5].innerText);
 	
@@ -348,9 +373,19 @@ function addRealtimeData(row) {
 /**
  * Get the company name
  */
-function getCompany(row) {
-	var company = row.cells[1].innerText;
-	return company.substring(0, company.indexOf("("));
+function getSymbol(row, stocks) {
+	var result = row.cells[1].innerText;
+	result = result.substring(0, result.indexOf("("));
+	if (result) {
+		result = result.trim();
+		if (result.indexOf(" ") > -1) {
+			result = result.substring(0, result.indexOf(" "));
+		}
+		if (stocks[result] && stocks[result].symbol) {
+			return stocks[result].symbol;
+		}
+	}
+	return undefined;
 }
 
 /**
