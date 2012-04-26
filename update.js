@@ -230,21 +230,39 @@ sorttable = {
  *****************************************************/
 
 var stocks = {
+	ABCAM : { symbol : "LON:ABC" },
+	ADVANCED : { symbol : "LON:AMS" },
+	ANDOR : { symbol : "LON:AND" },
 	ASML : { symbol : "AMS:ASML" },
+	AVEVA : { symbol : "LON:AVV" },
 	BIOTECH : { symbol : "LON:BIOG" },
+	BLINKX : { symbol : "LON:BLNX" },
 	COBHAM : { symbol : "LON:COB" },
+	CUPID : { symbol : "LON:CUP" },
 	DECHRA : { symbol : "LON:DPH" },
+	DELCAM : { symbol : "LON:DLC" },
 	FENNER : { symbol : "LON:FENR" },
 	FIDESSA : { symbol : "LON:FDSA" },
+	FIRST : { symbol : "LON:FDP" },
+	GENUS : { symbol : "LON:GNS" },
+	GW : { symbol : "LON:GWP" },
+	HALMA : { symbol : "LON:HLMA" },
+	INSTEM : { symbol : "LON:INS" },
+	INTERCEDE : { symbol : "LON:IGP" },
+	IP : { symbol : "LON:IPO" },
 	JOHNSON : { symbol : "LON:JMAT" },
+	JUDGES : { symbol : "LON:JDG" },
 	MEDTRONIC : { symbol : "NYSE:MDT" },
 	MORPHOSYS : { symbol : "ETR:MOR" },
 	NCC : { symbol : "LON:NCC" },
 	RENISHAW : { symbol : "LON:RSW" },
 	ROTORK : { symbol : "LON:ROR" },
 	SDL : { symbol : "LON:SDL" },
+	SURGICAL : { symbol : "LON:SUN" },
 	SYMRISE : { symbol : "FRA:SY1" },
-	TEVA : { symbol : "NASDAQ:TEVA" }
+	TEVA : { symbol : "NASDAQ:TEVA" },
+	VECTURA : { symbol : "LON:VEC" },
+	VICTREX : { symbol : "LON:VCT" }
 };
 
 // Split the page into the parts we need
