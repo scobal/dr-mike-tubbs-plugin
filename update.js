@@ -247,6 +247,7 @@ var stocks = {
 	FIRST : { symbol : "LON:FDP" },
 	GENUS : { symbol : "LON:GNS" },
 	GW : { symbol : "LON:GWP" },
+	GOOGLE : { symbol : "NASDAQ:GOOG" },
 	HALMA : { symbol : "LON:HLMA" },
 	INSTEM : { symbol : "LON:INS" },
 	INTERCEDE : { symbol : "LON:IGP" },
