@@ -2,6 +2,7 @@
  * Had to hack sorttable into this script. Scroll down a bit for the main app.
  */
 
+
 var stIsIE = /*@cc_on!@*/false;
 sorttable = {
 	  init: function() {
@@ -237,7 +238,8 @@ var stocks = {
 	AVEVA : { symbol : "LON:AVV" },
 	BIOTECH : { symbol : "LON:BIOG" },
 	BLINKX : { symbol : "LON:BLNX" },
-        BRAINJUICER : { symbol : "LONG:BJU" },
+	BRADY : { symbol : "LON:BRY" },
+    BRAINJUICER : { symbol : "LONG:BJU" },
 	COBHAM : { symbol : "LON:COB" },
 	CUPID : { symbol : "LON:CUP" },
 	DECHRA : { symbol : "LON:DPH" },
@@ -246,21 +248,25 @@ var stocks = {
 	FIDESSA : { symbol : "LON:FDSA" },
 	FIRST : { symbol : "LON:FDP" },
 	GENUS : { symbol : "LON:GNS" },
+	GILEAD : { symbol : "NASDAQ:GILD" },
 	GW : { symbol : "LON:GWP" },
 	GOOGLE : { symbol : "NASDAQ:GOOG" },
 	HALMA : { symbol : "LON:HLMA" },
 	INSTEM : { symbol : "LON:INS" },
 	INTERCEDE : { symbol : "LON:IGP" },
+	INTUITIVE : { symbol : "NASDAQ:ISRG" },
 	IP : { symbol : "LON:IPO" },
 	IQE : { symbol : "LON:IQE" },
 	JOHNSON : { symbol : "LON:JMAT" },
 	JUDGES : { symbol : "LON:JDG" },
 	MEDTRONIC : { symbol : "NYSE:MDT" },
 	MORPHOSYS : { symbol : "ETR:MOR" },
+	MURGITROYD : { symbol : "LON:MUR" },
 	NCC : { symbol : "LON:NCC" },
 	RENISHAW : { symbol : "LON:RSW" },
 	ROTORK : { symbol : "LON:ROR" },
 	SDL : { symbol : "LON:SDL" },
+	SPIRENT : { symbol : "LON:SPT" },
 	SURGICAL : { symbol : "LON:SUN" },
 	SYMRISE : { symbol : "FRA:SY1" },
 	TEVA : { symbol : "NASDAQ:TEVA" },
